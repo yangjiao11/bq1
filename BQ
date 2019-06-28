@@ -1,0 +1,104 @@
+f<- function(x){-8*x-2*x^2+x^3}
+SEcov <- function(X1,X2,l) {
+  Sigma <- matrix(rep(0, length(X1)*length(X2)), nrow=length(X1))
+  for (i in 1:length(X1)) {
+    for (j in 1:length(X2)) {
+      Sigma[i,j] <- exp(-0.5*(abs(X1[i]-X2[j])/l)^2)
+    
+    }
+  }
+  return(Sigma)
+}
+covfunction<-function(X1,X2,l) {
+  Sigma <-matrix(rep(0, length(X1)*length(X2)), nrow=length(X1))
+  for (i in 1:length(X1)) {
+    for (j in 1:length(X2)) {
+    Sigma[i,j] <- (1+sqrt(3)*(abs(X1[i]-X2[j])/l))*exp(-sqrt(3)*(abs(X1[i]-X2[j])/l))
+ 
+  }
+}
+return(Sigma)
+}
+####
+x<-c(-2,-3,0,2,3)
+l=1000
+#####
+x.star<-seq(-5,5,0.1)
+cov1<-0
+cov2<-0
+y<-f(x)
+k.xx <- SEcov(x,x,l)
+s.k.xx<-solve( k.xx+10^(-7)*diag(length(x)))
+k.xxs <- SEcov(x,x.star,l)
+k.xsx <- SEcov(x.star,x,l)
+k.xsxs <- SEcov(x.star,x.star,l)
+f.star.bar1<- k.xsx%*%s.k.xx%*%y
+f.cov1<- k.xsxs - k.xsx%*%s.k.xx%*%k.xxs
+for (i in 1:length(x.star)) {
+  cov1[i]<-f.cov1[i,i]
+}
+###k.xx2 <- covfunction(x,x,l)
+###s.k.xx2<-solve( k.xx+10^(-7)*diag(length(x)))
+###k.xxs2 <- covfunction(x,x.star,l)
+###k.xsx2 <- covfunction(x.star,x,l)
+###k.xsxs2 <- covfunction(x.star,x.star,l)
+###f.star.bar2 <- k.xsx%*%s.k.xx%*%y
+###f.cov2<-  k.xsxs - k.xsx%*%s.k.xx%*%k.xxs
+#for (i in 1:length(x.star)) {
+#  cov2[i]<-f.cov2[i,i]
+#}
+x0<-seq(-5,5,0.1)
+#par(mfrow=c(1,2))
+plot(x0,f(x0),type="l")
+points(x,y)
+lines(x.star, f.star.bar1,type="l",col="red")
+lines(x.star, f.star.bar1+1.96*cov1,type="l",lty=2,col="red")
+lines(x.star, f.star.bar1-1.96*cov1,type="l",lty=2,col="red")
+plot(x0,f(x0),type="l")
+#points(x,y)
+#lines(x.star, f.star.bar2,type="l",col="green")
+#lines(x.star, f.star.bar2+1.96*cov2,type="l",lty=2,col="green")
+#lines(x.star, f.star.bar2-1.96*cov2,type="l",lty=2,col="green")
+
+data<-function(n){
+  x<-runif(n,-5,5)
+  return(x)
+}
+fig1<-function(n,l){
+  x<- data(n)
+  y<-f(x)
+  k.xx <- SEcov(x,x,l)
+  s.k.xx<-solve( k.xx+10^(-10)*diag(length(x)))
+  k.xxs <- SEcov(x,x.star,l)
+  k.xsx <- SEcov(x.star,x,l)
+  k.xsxs <- SEcov(x.star,x.star,l)
+  f.star.bar <- k.xsx%*%s.k.xx%*%y
+  f.cov<- k.xsxs - k.xsx%*%s.k.xx%*%k.xxs
+  Cov<-0
+  for (i in 1:length(x.star)) {
+    Cov[i]<-f.cov[i,i]
+  }
+  x0<-seq(-5,5,0.1)
+  par(mfrow=c(1,2))
+  plot(x0,f(x0),type="l")
+  points(x,y)
+  lines(x.star, f.star.bar,type="l",col="red")
+  lines(x.star, f.star.bar+1.96*Cov,type="l",lty=2,col="red")
+  lines(x.star, f.star.bar-1.96*Cov,type="l",lty=2,col="red")
+  integC1<- matrix(rep(0, length(x), nrow=length(x)))
+  for (i in 1:length(x)) {
+  integC1[i,1]<- l*(l^2+1)^(-0.5)*exp(-0.5*x[i]^2/(l^2+1))
+  }
+  m<-t(y)%*%s.k.xx%*%integC1 
+  integC2<-l/(l^2+2)^0.5
+  d<-integC2-t(integC1)%*%s.k.xx%*%integC1
+  truevalue<--2
+  x1<-(-7:3)
+ # plot(x1,dnorm(x1,m,d),type="l") 
+ # lines(rep(truevalue, 2), c(0,dnorm(m,m,d)),col="blue")
+  print(m)
+  print(d)
+  print(truevalue)
+}
+
+
