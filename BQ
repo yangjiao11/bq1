@@ -1,4 +1,4 @@
-f<- function(x){-8*x-2*x^2+x^3}
+f<- function(x){-8*x-2*x^2+x^3}###target function
 SEcov <- function(X1,X2,l) {
   Sigma <- matrix(rep(0, length(X1)*length(X2)), nrow=length(X1))
   for (i in 1:length(X1)) {
